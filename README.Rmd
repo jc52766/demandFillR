@@ -22,8 +22,8 @@ Of course there are fancy solves like OR tools but most the time you just need s
 solved <- matrix(rep(0, 3*4), ncol = 3, byrow = T)
 options <- matrix(c(2, 0, 0, 1, 1, 0, 1, 0, 1), ncol = 3, byrow = T)
 demand <- c(4, 2, 2)
-dfw <- c(10, 1, 1)
-dew <- c(-10, -0.5, -0.5)
+dfw <- c(10, 1, 1) # loves the 1st one
+dew <- c(-10, -0.5, -0.5) # once 1st options demand exceeded it is heavily penalized
 expect1 <- matrix(c(2, 0, 0, 2, 0, 0, 1, 1, 0, 1, 1, 0),
                  ncol = 3,
                  byrow = T)
