@@ -19,7 +19,7 @@ Of course there are fancy solves like OR tools but most the time you just need s
 
 And it's fast!
 
-Below is a simple example of it solving a simple demand profile. And kinda like a maze it goes too far one way before adjusting its path the next time around to a much better solution, less greedy, solution.
+Below is a simple example of it solving a simple demand profile. And kinda like a maze it goes too far one way before adjusting its path the next time around to a much better, less greedy, overall solution.
 
 ```{r simple example}
 # Check 1st solve is non as good as later solves in this specific case
