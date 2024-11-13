@@ -165,7 +165,7 @@ for (da_date in
   
   ### plot demand v options for each group
   # to check if there are issues re possible non-options that do have demand
-  plot(apply(options, 2, max), original_demand)
+  #plot(apply(options, 2, max), original_demand)
   
   
   start.time <- Sys.time()
@@ -191,8 +191,8 @@ for (da_date in
   colSums(solved)
   original_demand
   
-  plot(original_demand, colSums(solved))
-  grid()
+  #plot(original_demand, colSums(solved))
+  #grid()
   
   # to avoid date showing as number convert to yyyymmdd format
   formatted_date <- format(da_date |> as.POSIXct(), "%Y%m%d")

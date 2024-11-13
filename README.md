@@ -11,6 +11,12 @@ Of course there are fancy solves like OR tools but most the time you
 just need something simple and that can be quickly/easily tinkered to
 solve for what your personal needs are.
 
+And it’s fast!
+
+Below is a simple example of it solving a simple demand profile. And
+kinda like a maze it goes too far one way before adjusting its path the
+next time around to a much better solution, less greedy, solution.
+
 ``` r
 # Check 1st solve is non as good as later solves in this specific case
 solved <- matrix(rep(0, 3*4), ncol = 3, byrow = T)
