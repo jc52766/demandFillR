@@ -1,5 +1,6 @@
 library(tidyverse)
 library(feather)
+source("R/solver.r")
 
 west_options_wide <- readxl::read_excel(
   "manual_data_FREETEXT.xlsx",
@@ -171,45 +172,15 @@ for (da_date in
   
   for (ith_head in 1:heads) {
     
-    #for( ith_head in 1:1){
-    # will need to check against each option so set matrix sizing
-    rowsM <- nrow(options)
-    colsM <- ncol(options)
-    
-    zeroM <- matrix(0, rowsM, colsM, byrow = T)
-    
-    mdfM <- matrix(mdf, rowsM, colsM, byrow = T)
-    mdeM <- matrix(mde, rowsM, colsM, byrow = T)
-    
-    # filled is colsum of beheaded solved
-    beheaded_solved <- solved[-1, ]
-    filled <- colSums(beheaded_solved)
-    filledM <- matrix(filled, rowsM, colsM, byrow = T)
-    
-    demandM <- matrix(demand, rowsM, colsM, byrow = T)
-    
-    newFilledM <- filledM + options
-    demandFilledM <- pmin(newFilledM, demandM)
-    excessFillM <- pmax((newFilledM - demandM), zeroM)
-    
-    evalDemandFillM <- demandFilledM * mdfM
-    evalExcessFillM <- excessFillM * mdeM
-    
-    evalM <- evalDemandFillM + evalExcessFillM
-    
-    bestOptionIdx <- which.max(rowSums(evalM))
-    
-    # now to solved append the best option
-    this_best_option <- options[bestOptionIdx, ] %>% matrix(nrow = 1)
-    new_solved <- beheaded_solved %>%
-      rbind(this_best_option)
+    new_solved <- xsolve(
+      solved = solved,
+      options = options,
+      demand = demand,
+      dfw = mdf,
+      dew = mdf
+    )
     
     solved <- new_solved
-    
-    # now some demand filled update demand for next loop through
-    ### new_demand <- sapply(original_demand-colSums(new_solved), function(x){ max(x,0)})
-    # new_demand <- sapply(demand-colSums(this_best_option), function(x){ max(x,0)})
-    # demand <- new_demand
 
   }
   
