@@ -89,3 +89,37 @@ test_that("test can maximise exceed", {
   expect_identical(solved, expect)
 })
 
+test_that("test that can improve with more solves", {
+  # Check 1st solve is non as good as later solves in this specific case
+  solved <- matrix(rep(0, 3*4), ncol = 3, byrow = T)
+  options <- matrix(c(2, 0, 0, 1, 1, 0, 1, 0, 1), ncol = 3, byrow = T)
+  demand <- c(4, 2, 2)
+  dfw <- c(10, 1, 1)
+  dew <- c(-10, -0.5, -0.5)
+  expect1 <- matrix(c(2, 0, 0, 2, 0, 0, 1, 1, 0, 1, 1, 0),
+                   ncol = 3,
+                   byrow = T)
+  expect2 <- matrix(c(1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0),
+                    ncol = 3,
+                    byrow = T)
+  for (i in 1:4) {
+    solved <- xsolve(
+      solved = solved,
+      options = options,
+      demand = demand,
+      dfw = dfw,
+      dew = dew
+    )
+  }
+  expect_identical(solved, expect1)
+  for (i in 1:4) {
+    solved <- xsolve(
+      solved = solved,
+      options = options,
+      demand = demand,
+      dfw = dfw,
+      dew = dew
+    )
+  }
+  expect_identical(solved, expect2)
+})
