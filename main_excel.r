@@ -1,66 +1,27 @@
 library(tidyverse)
 library(feather)
+source("R/helpers.r")
 source("R/solver.r")
+source("R/get_data.r")
 
-west_options_wide <- readxl::read_excel(
-  "manual_data_FREETEXT.xlsx",
-  sheet = "options_v"
-) %>%
-  distinct()
-
+west_options_wide <- get_options_data_xl()
 # west_demand_wide is the demand that the opti sees. Can differ from the actual demand.
-west_demand_wide <- readxl::read_excel(
-  "manual_data_FREETEXT.xlsx",
-  sheet = "demand_that_opti_sees_v"
-) %>%
-  relocate(demand_from_date, 1) %>%
-  rename(from_date = demand_from_date, to_date = demand_to_date)
-
+west_demand_wide <- get_demand_data_xl(sn="demand_that_opti_sees_v")
 # west_actual_demand_wide is the actual demand.
-west_actual_demand_wide <- readxl::read_excel(
-  "manual_data_FREETEXT.xlsx",
-  sheet = "demand_v"
-) %>%
-  relocate(demand_from_date, 1) %>%
-  rename(from_date = demand_from_date, to_date = demand_to_date)
-
-df_heads <- readxl::read_excel(
-  "manual_data_FREETEXT.xlsx",
-  sheet = "heads_v"
-)
-
-df_avg_weight <- readxl::read_excel(
-  "manual_data_FREETEXT.xlsx",
-  sheet = "weight_v"
-)
-
-df_mdf <- readxl::read_excel(
-  "manual_data_FREETEXT.xlsx",
-  sheet = "mdf"
-)
-
-df_mde <- readxl::read_excel(
-  "manual_data_FREETEXT.xlsx",
-  sheet = "mde"
-)
-
-west_options_wide %>% head
-west_demand_wide %>% head
-df_heads %>% head
-df_avg_weight %>% head
-df_mdf %>% head
-df_mde %>% head
+west_actual_demand_wide <- get_demand_data_xl(sn="demand_v")
+df_heads <- get_heads_data_xl()
+df_avg_weight <- get_weight_data_xl()
+df_mdf <- get_multiplier_data_xl(sn="mdf")
+df_mde <- get_multiplier_data_xl(sn="mde")
 
 ### make sure columns match and are in same order
 # get all unique groups
-unique_groups <- unique(c(
-  colnames(west_demand_wide %>% select(-from_date, -to_date)),
-  colnames(west_options_wide)
-)) %>%
-  sort()
+unique_groups <- get_all_colnames_sorted(
+  west_demand_wide %>% select(-from_date, -to_date),
+  west_options_wide
+)
 
-df_all_groups <- data.frame(matrix(0, ncol = unique_groups %>% length, nrow = 1))
-colnames(df_all_groups) <- unique_groups
+df_all_groups <- create_empty_numeric_dataframe(unique_groups)
 
 west_demand_wide2 <- west_demand_wide %>%
   dplyr::bind_rows(df_all_groups) %>%
@@ -101,21 +62,21 @@ for (da_date in
       distinct() %>%
       drop_na() %>%
       pull())) {
-  filter_demand_from_date <- da_date #as.Date('2024-12-30')
+  filter_from_date <- da_date #as.Date('2024-12-30')
   
   heads <- df_heads %>%
-    filter(demand_from_date == filter_demand_from_date) %>%
+    filter(from_date == filter_from_date) %>%
     head(1) %>%
     pull(heads)
   
   cweight <- df_avg_weight %>%
-    filter(demand_from_date == filter_demand_from_date) %>%
+    filter(from_date == filter_from_date) %>%
     head(1) %>%
     pull(avg_weight_per_head)
   
   # demand = demand that opti sees
   demand <- west_demand_wide2 %>%
-    filter(from_date == filter_demand_from_date) %>%
+    filter(from_date == filter_from_date) %>%
     select(all_of(unique_groups)) %>%
     head(1) %>%
     as.matrix %>%
@@ -123,7 +84,7 @@ for (da_date in
   
   # actual_demand = not demand that opti sees
   actual_demand <- west_actual_demand_wide2 %>%
-    filter(from_date == filter_demand_from_date) %>%
+    filter(from_date == filter_from_date) %>%
     select(all_of(unique_groups)) %>%
     head(1) %>%
     as.matrix %>%
@@ -141,12 +102,12 @@ for (da_date in
   # }
   
   mdf <- df_mdf %>%
-    filter(demand_from_date == filter_demand_from_date) %>%
+    filter(from_date == filter_from_date) %>%
     select(all_of(unique_groups)) %>%
     as.numeric()
   
   mde <- df_mde %>%
-    filter(demand_from_date == filter_demand_from_date) %>%
+    filter(from_date == filter_from_date) %>%
     select(all_of(unique_groups)) %>%
     as.numeric()
   
