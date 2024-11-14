@@ -6,9 +6,7 @@ west_options_wide <- readxl::read_excel(
   "manual_data_FREETEXT.xlsx",
   sheet = "options_v"
 ) %>%
-  distinct() %>%
-  mutate(i = row_number()) %>%
-  relocate(i, 1)
+  distinct()
 
 # west_demand_wide is the demand that the opti sees. Can differ from the actual demand.
 west_demand_wide <- readxl::read_excel(
@@ -57,7 +55,7 @@ df_mde %>% head
 # get all unique groups
 unique_groups <- unique(c(
   colnames(west_demand_wide %>% select(-from_date, -to_date)),
-  colnames(west_options_wide %>% select(-i))
+  colnames(west_options_wide)
 )) %>%
   sort()
 
@@ -72,7 +70,7 @@ west_demand_wide2 <- west_demand_wide %>%
 west_options_wide2 <- west_options_wide %>%
   dplyr::bind_rows(df_all_groups) %>%
   mutate_if(is.numeric , replace_na, replace = 0) %>%
-  select(c(i, all_of(unique_groups)))
+  select(c(all_of(unique_groups)))
 
 west_actual_demand_wide2 <- west_actual_demand_wide %>%
   dplyr::bind_rows(df_all_groups) %>%
