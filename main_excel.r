@@ -21,36 +21,10 @@ unique_groups <- get_all_colnames_sorted(
   west_options_wide
 )
 
-df_all_groups <- create_empty_numeric_dataframe(unique_groups)
-
-west_demand_wide2 <- west_demand_wide %>%
-  dplyr::bind_rows(df_all_groups) %>%
-  mutate_if(is.numeric , replace_na, replace = 0) %>%
-  select(c(from_date, to_date, all_of(unique_groups)))
-
-west_options_wide2 <- west_options_wide %>%
-  dplyr::bind_rows(df_all_groups) %>%
-  mutate_if(is.numeric , replace_na, replace = 0) %>%
-  select(c(all_of(unique_groups)))
-
-west_actual_demand_wide2 <- west_actual_demand_wide %>%
-  dplyr::bind_rows(df_all_groups) %>%
-  mutate_if(is.numeric , replace_na, replace = 0) %>%
-  select(c(from_date, to_date, all_of(unique_groups)))
-
-
-identical(
-  west_options_wide2 %>%
-    select(all_of(unique_groups)) %>%
-    colnames,
-  west_demand_wide2 %>%
-    select(all_of(unique_groups)) %>%
-    colnames,
-  # west_actual_demand_wide2 %>%
-  #   select(all_of(unique_groups)) %>%
-  #   colnames
-)
-
+# force all options have a column in relevant df's
+west_demand_wide2 <- force_all_options(west_demand_wide, unique_groups)
+west_options_wide2 <- force_all_options(west_options_wide, unique_groups)
+west_actual_demand_wide2 <- force_all_options(west_actual_demand_wide, unique_groups)
 
 ############## solve
 ##############
