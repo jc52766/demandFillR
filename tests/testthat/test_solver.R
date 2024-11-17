@@ -177,3 +177,27 @@ test_that("test multiple primary drops", {
   
   expect_identical(final_solve, expect_final_solve)
 })
+
+
+test_that("test multiple primary drops solve function", {
+  solved <- matrix(rep(0, 12), ncol = 3, byrow = T)
+  options1 <- matrix(c(1, 0, 0, 0.5, 0.5, 0), ncol = 3, byrow = T)
+  options2 <- matrix(c(0, 1, 0, 0, 0.5, 0.5), ncol = 3, byrow = T)
+  options3 <- matrix(c(0, 0, 1, 0, 0.5, 0.5), ncol = 3, byrow = T)
+  options_l <- list(options1, options2, options3)
+  demand <- c(1, 1, 1)
+  dfw <- c(1, 1, 1)
+  dew <- c(-0.5, -0.5, -0.5)
+  
+  expect_final_solve <- matrix(c(rep(0, 9), c(1, 1, 1)), ncol = 3, byrow = T)
+  
+  multiple_solved <- xsolve_multiple(
+    solved = solved,
+    options_l = options_l,
+    demand = demand,
+    dfw = dfw,
+    dew = dew
+  )
+  expect_identical(multiple_solved, expect_final_solve)
+})
+
