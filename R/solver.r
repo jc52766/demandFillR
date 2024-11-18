@@ -48,7 +48,7 @@ xsolve_multiple <- function(solved, # current solve
 ){
   # just like solve but for multiple primary drops
   # so basically run solve for each primary drop
-  ndrops <- length(options)
+  ndrops <- length(options_l)
   original_solved <- solved
   solves_l <- list()
   for (i in 1:ndrops) {
@@ -67,7 +67,7 @@ xsolve_multiple <- function(solved, # current solve
     # temporarily update solved to row bind this primary drops solve
     solved <- rbind(solved, this_solve)
   }
-  allSolve <- do.call(rbind,solves_l) %>% rowSums()
+  allSolve <- do.call(rbind,solves_l) %>% colSums()
   
   # now behead original_solved and row bind the solve across all primary drops
   beheaded_original_solved <- original_solved[-1, ]

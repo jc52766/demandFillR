@@ -169,7 +169,7 @@ test_that("test multiple primary drops", {
     
     expect_identical(solves_l[[i]], expect_l[[i]])
   }
-  allSolve <- do.call(rbind,solves_l) %>% rowSums()
+  allSolve <- do.call(rbind,solves_l) %>% colSums()
   
   # now behead original_solved and row bind the solve across all primary drops
   beheaded_original_solved <- original_solved[-1, ]
@@ -199,5 +199,56 @@ test_that("test multiple primary drops solve function", {
     dew = dew
   )
   expect_identical(multiple_solved, expect_final_solve)
+})
+
+
+test_that("test multiple primary drops solve function works across loop", {
+  solved <- matrix(rep(0, 12), ncol = 3, byrow = T)
+  options1 <- matrix(c(1, 0, 0, 0.5, 0.5, 0), ncol = 3, byrow = T)
+  options2 <- matrix(c(0, 1, 0, 0.5, 0.5, 0), ncol = 3, byrow = T)
+  options3 <- matrix(c(0, 0, 1, 0, 0.5, 0.5), ncol = 3, byrow = T)
+  options_l <- list(options1, options2, options3)
+  demand <- c(4, 4, 4)
+  dfw <- c(1, 1, 1)
+  dew <- c(-0.5, -0.5, -0.5)
+  
+  expect_final_solve <- matrix(rep(1, 12), ncol = 3, byrow = T)
+  
+  for (i in 1:4) {
+  solved <- xsolve_multiple(
+    solved = solved,
+    options_l = options_l,
+    demand = demand,
+    dfw = dfw,
+    dew = dew
+  )
+  }
+  expect_identical(solved, expect_final_solve)
+})
+
+
+
+test_that("test advanced multiple primary drops solve", {
+  solved <- matrix(rep(0, 12), ncol = 3, byrow = T)
+  options1 <- matrix(c(1, 0, 0, 0.5, 0.5, 0), ncol = 3, byrow = T)
+  options2 <- matrix(c(0, 1, 0, 0.5, 0.5, 0), ncol = 3, byrow = T)
+  options3 <- matrix(c(0, 0, 1, 0, 0.5, 0.5), ncol = 3, byrow = T)
+  options_l <- list(options1, options2, options3)
+  demand <- c(6, 2, 4)
+  dfw <- c(1, 1, 1)
+  dew <- c(-0.5, -0.5, -0.5)
+  
+  expect_final_solve <- matrix(rep(c(1.5,0.5,1),4), ncol = 3, byrow = T)
+  
+  for (i in 1:16) {
+    solved <- xsolve_multiple(
+      solved = solved,
+      options_l = options_l,
+      demand = demand,
+      dfw = dfw,
+      dew = dew
+    )
+  }
+  expect_identical(solved, expect_final_solve)
 })
 
