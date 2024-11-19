@@ -30,9 +30,6 @@ unique_groups <- get_all_colnames_sorted(
 # force all options have a column in relevant df's
 west_demand_wide2 <- force_all_options(west_demand_wide, unique_groups)
 west_actual_demand_wide2 <- force_all_options(west_actual_demand_wide, unique_groups)
-
-#west_options_wide2 <- force_all_options(west_options_wide, unique_groups)
-
 west_options_wide2 <- lapply(west_options_wide, function(x){ force_all_options(x, unique_groups)})
 
 ############## solve
@@ -79,11 +76,6 @@ for (da_date in
       as.matrix %>%
       (\(.) . * cweight)()
   }
-  
-  # options <- west_options_wide2 %>%
-  #   select(all_of(unique_groups)) %>%
-  #   as.matrix %>%
-  #   (\(.) . * cweight)()
   
   options <- lapply(west_options_wide2, function(x) {options_prep(x)})
   
