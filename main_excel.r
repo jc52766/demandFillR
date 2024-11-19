@@ -4,7 +4,11 @@ source("R/helpers.r")
 source("R/solver.r")
 source("R/get_data.r")
 
-west_options_wide <- get_options_data_xl()
+west_options_wide <- list(
+  get_options_data_xl(sn = "options1"),
+  get_options_data_xl(sn = "options2"),
+  get_options_data_xl(sn = "options3")
+)
 # west_demand_wide is the demand that the opti sees. Can differ from the actual demand.
 west_demand_wide <- get_demand_data_xl(sn="demand_that_opti_sees_v")
 # west_actual_demand_wide is the actual demand.
@@ -18,13 +22,18 @@ df_mde <- get_multiplier_data_xl(sn="mde")
 # get all unique groups
 unique_groups <- get_all_colnames_sorted(
   west_demand_wide %>% select(-from_date, -to_date),
-  west_options_wide
+  west_options_wide[[1]],
+  west_options_wide[[2]],
+  west_options_wide[[3]]
 )
 
 # force all options have a column in relevant df's
 west_demand_wide2 <- force_all_options(west_demand_wide, unique_groups)
-west_options_wide2 <- force_all_options(west_options_wide, unique_groups)
 west_actual_demand_wide2 <- force_all_options(west_actual_demand_wide, unique_groups)
+
+#west_options_wide2 <- force_all_options(west_options_wide, unique_groups)
+
+west_options_wide2 <- lapply(west_options_wide, function(x){ force_all_options(x, unique_groups)})
 
 ############## solve
 ##############
@@ -64,10 +73,19 @@ for (da_date in
     as.matrix %>%
     as.vector()
   
-  options <- west_options_wide2 %>%
-    select(all_of(unique_groups)) %>%
-    as.matrix %>%
-    (\(.) . * cweight)()
+  options_prep <- function(df){
+    df %>%
+      select(all_of(unique_groups)) %>%
+      as.matrix %>%
+      (\(.) . * cweight)()
+  }
+  
+  # options <- west_options_wide2 %>%
+  #   select(all_of(unique_groups)) %>%
+  #   as.matrix %>%
+  #   (\(.) . * cweight)()
+  
+  options <- lapply(west_options_wide2, function(x) {options_prep(x)})
   
   # remove any all zero option
   # which_all_zero_options <- which(0 == (options %>% rowSums()))
@@ -105,7 +123,7 @@ for (da_date in
   
   for (ith_head in 1:heads) {
     
-    new_solved <- xsolve(
+    new_solved <- xsolve_multiple(
       solved = solved,
       options = options,
       demand = demand,
