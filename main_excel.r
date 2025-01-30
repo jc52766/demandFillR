@@ -120,7 +120,7 @@ for (da_date in
       options = options,
       demand = demand,
       dfw = mdf,
-      dew = mdf
+      dew = mde
     )
     
     solved <- new_solved
